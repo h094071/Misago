@@ -3,80 +3,12 @@ from django.test import TestCase
 
 from misago.conf import settings
 
-from misago.legal.context_processors import legal_links
+from .context_processors import legal_links
 
 
 class MockRequest(object):
     def __init__(self):
         self.frontend_context = {}
-
-
-
-class TermsOfServiceTests(TestCase):
-    def tearDown(self):
-        settings.reset_settings()
-
-    def test_404_on_no_tos(self):
-        """TOS view returns 404 when no TOS is set"""
-        self.assertFalse(settings.terms_of_service_link)
-        self.assertFalse(settings.terms_of_service)
-
-        response = self.client.get(reverse('misago:terms-of-service'))
-        self.assertEqual(response.status_code, 404)
-
-    def test_301_on_link_tos(self):
-        """TOS view returns 302 redirect when link is set"""
-        settings.override_setting('terms_of_service_link', 'http://test.com')
-        settings.override_setting('terms_of_service', 'Lorem ipsum')
-        self.assertTrue(settings.terms_of_service_link)
-        self.assertTrue(settings.terms_of_service)
-
-        response = self.client.get(reverse('misago:terms-of-service'))
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], 'http://test.com')
-
-    def test_200_on_link_tos(self):
-        """TOS view returns 200 when custom tos content is set"""
-        settings.override_setting('terms_of_service_title', 'Test ToS')
-        settings.override_setting('terms_of_service', 'Lorem ipsum dolor')
-        self.assertTrue(settings.terms_of_service_title)
-        self.assertTrue(settings.terms_of_service)
-
-        response = self.client.get(reverse('misago:terms-of-service'))
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('Test ToS', response.content)
-        self.assertIn('Lorem ipsum dolor', response.content)
-
-    def test_context_processor_no_tos(self):
-        """context processor has no TOS link"""
-        context_dict = legal_links(MockRequest())
-        self.assertFalse(context_dict)
-
-    def test_context_processor_misago_tos(self):
-        """context processor has TOS link to Misago view"""
-        settings.override_setting('terms_of_service', 'Lorem ipsum')
-        context_dict = legal_links(MockRequest())
-
-        self.assertEqual(context_dict, {
-            'TERMS_OF_SERVICE_URL': reverse('misago:terms-of-service')
-        })
-
-    def test_context_processor_remote_tos(self):
-        """context processor has TOS link to remote url"""
-        settings.override_setting('terms_of_service_link', 'http://test.com')
-        context_dict = legal_links(MockRequest())
-
-        self.assertEqual(context_dict, {
-            'TERMS_OF_SERVICE_URL': 'http://test.com'
-        })
-
-        # set misago view too
-        settings.override_setting('terms_of_service', 'Lorem ipsum')
-        context_dict = legal_links(MockRequest())
-
-        self.assertEqual(context_dict, {
-            'TERMS_OF_SERVICE_URL': 'http://test.com'
-        })
 
 
 class PrivacyPolicyTests(TestCase):
@@ -143,4 +75,71 @@ class PrivacyPolicyTests(TestCase):
 
         self.assertEqual(context_dict, {
             'PRIVACY_POLICY_URL': 'http://test.com'
+        })
+
+
+class TermsOfServiceTests(TestCase):
+    def tearDown(self):
+        settings.reset_settings()
+
+    def test_404_on_no_tos(self):
+        """TOS view returns 404 when no TOS is set"""
+        self.assertFalse(settings.terms_of_service_link)
+        self.assertFalse(settings.terms_of_service)
+
+        response = self.client.get(reverse('misago:terms-of-service'))
+        self.assertEqual(response.status_code, 404)
+
+    def test_301_on_link_tos(self):
+        """TOS view returns 302 redirect when link is set"""
+        settings.override_setting('terms_of_service_link', 'http://test.com')
+        settings.override_setting('terms_of_service', 'Lorem ipsum')
+        self.assertTrue(settings.terms_of_service_link)
+        self.assertTrue(settings.terms_of_service)
+
+        response = self.client.get(reverse('misago:terms-of-service'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], 'http://test.com')
+
+    def test_200_on_link_tos(self):
+        """TOS view returns 200 when custom tos content is set"""
+        settings.override_setting('terms_of_service_title', 'Test ToS')
+        settings.override_setting('terms_of_service', 'Lorem ipsum dolor')
+        self.assertTrue(settings.terms_of_service_title)
+        self.assertTrue(settings.terms_of_service)
+
+        response = self.client.get(reverse('misago:terms-of-service'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Test ToS', response.content)
+        self.assertIn('Lorem ipsum dolor', response.content)
+
+    def test_context_processor_no_tos(self):
+        """context processor has no TOS link"""
+        context_dict = legal_links(MockRequest())
+        self.assertFalse(context_dict)
+
+    def test_context_processor_misago_tos(self):
+        """context processor has TOS link to Misago view"""
+        settings.override_setting('terms_of_service', 'Lorem ipsum')
+        context_dict = legal_links(MockRequest())
+
+        self.assertEqual(context_dict, {
+            'TERMS_OF_SERVICE_URL': reverse('misago:terms-of-service')
+        })
+
+    def test_context_processor_remote_tos(self):
+        """context processor has TOS link to remote url"""
+        settings.override_setting('terms_of_service_link', 'http://test.com')
+        context_dict = legal_links(MockRequest())
+
+        self.assertEqual(context_dict, {
+            'TERMS_OF_SERVICE_URL': 'http://test.com'
+        })
+
+        # set misago view too
+        settings.override_setting('terms_of_service', 'Lorem ipsum')
+        context_dict = legal_links(MockRequest())
+
+        self.assertEqual(context_dict, {
+            'TERMS_OF_SERVICE_URL': 'http://test.com'
         })

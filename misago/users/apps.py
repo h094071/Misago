@@ -1,6 +1,7 @@
 from django.apps import AppConfig
 from django.utils.translation import ugettext_lazy as _
-from misago.users.pages import usercp, users_list, user_profile
+
+from .pages import user_profile, usercp, users_list
 
 
 class MisagoUsersConfig(AppConfig):
@@ -9,7 +10,7 @@ class MisagoUsersConfig(AppConfig):
     verbose_name = "Misago Auth"
 
     def ready(self):
-        from misago.users import signals
+        from . import signals
 
         self.register_default_usercp_pages()
         self.register_default_users_list_pages()
@@ -80,7 +81,7 @@ class MisagoUsersConfig(AppConfig):
         def can_see_ban_details(request, profile):
             if request.user.is_authenticated():
                 if request.user.acl['can_see_ban_details']:
-                    from misago.users.bans import get_user_ban
+                    from .bans import get_user_ban
                     return bool(get_user_ban(profile))
                 else:
                     return False

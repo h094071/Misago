@@ -1,18 +1,20 @@
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.utils.translation import gettext as _, ungettext
+from django.utils.translation import gettext as _
+from django.utils.translation import ungettext
 
 from rest_framework.response import Response
 
 from misago.acl import add_acl
-from misago.categories.models import CATEGORIES_TREE_ID, Category
-from misago.categories.permissions import can_see_category, can_browse_category
+from misago.categories.models import THREADS_ROOT_NAME, Category
+from misago.categories.permissions import can_browse_category, can_see_category
 
-from misago.threads.models import Thread
-from misago.threads.permissions import can_see_thread
-from misago.threads.serializers import (
-    ThreadListSerializer, MergeThreadsSerializer)
-from misago.threads.utils import add_categories_to_threads
+from ...events import record_event
+from ...models import Thread
+from ...permissions import can_see_thread
+from ...serializers import MergeThreadsSerializer, ThreadListSerializer
+from ...threadtypes import trees_map
+from ...utils import add_categories_to_threads
 
 
 MERGE_LIMIT = 20 # no more than 20 threads can be merged in single action
@@ -45,8 +47,7 @@ def threads_merge_endpoint(request):
 
     serializer = MergeThreadsSerializer(context=request.user, data=request.data)
     if serializer.is_valid():
-        new_thread = merge_threads(
-            request.user, serializer.validated_data, threads)
+        new_thread = merge_threads(request, serializer.validated_data, threads)
         return Response(ThreadListSerializer(new_thread).data)
     else:
         return Response(serializer.errors, status=400)
@@ -67,9 +68,11 @@ def clean_threads_for_merge(request):
             MERGE_LIMIT)
         raise MergeError(message % {'limit': MERGE_LIMIT})
 
+    threads_tree_id = trees_map.get_tree_id_for_root(THREADS_ROOT_NAME)
+
     threads_queryset = Thread.objects.filter(
         id__in=threads_ids,
-        category__tree_id=CATEGORIES_TREE_ID,
+        category__tree_id=threads_tree_id,
     ).select_related('category').order_by('-id')
 
     threads = []
@@ -85,7 +88,7 @@ def clean_threads_for_merge(request):
 
 
 @transaction.atomic
-def merge_threads(user, validated_data, threads):
+def merge_threads(request, validated_data, threads):
     new_thread = Thread(
         category=validated_data['category'],
         weight=validated_data.get('weight', 0),
@@ -102,6 +105,10 @@ def merge_threads(user, validated_data, threads):
         categories.append(thread.category)
         new_thread.merge(thread)
         thread.delete()
+
+        record_event(request, new_thread, 'merged', {
+            'merged_thread': thread.title,
+        }, commit=False)
 
     new_thread.synchronize()
     new_thread.save()
@@ -120,14 +127,13 @@ def merge_threads(user, validated_data, threads):
     # add top category to thread
     if validated_data.get('top_category'):
         categories = list(Category.objects.all_categories().filter(
-            id__in=user.acl['visible_categories']
+            id__in=request.user.acl['visible_categories']
         ))
-        add_categories_to_threads(
-            validated_data['top_category'], categories, [new_thread])
+        add_categories_to_threads(validated_data['top_category'], categories, [new_thread])
     else:
         new_thread.top_category = None
 
     new_thread.save()
 
-    add_acl(user, new_thread)
+    add_acl(request.user, new_thread)
     return new_thread

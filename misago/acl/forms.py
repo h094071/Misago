@@ -2,8 +2,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from misago.core import forms
 
-from misago.acl.models import Role
-from misago.acl.providers import providers
+from .models import Role
+from .providers import providers
 
 
 class RoleForm(forms.ModelForm):
@@ -20,7 +20,7 @@ def get_permissions_forms(role, data=None):
     """
     role_permissions = role.permissions
 
-    forms = []
+    perms_forms = []
     for extension, module in providers.list():
         try:
             module.change_permissions_form
@@ -33,9 +33,11 @@ def get_permissions_forms(role, data=None):
 
         if FormType:
             if data:
-                forms.append(FormType(data, prefix=extension))
+                perms_forms.append(FormType(data, prefix=extension))
             else:
-                forms.append(FormType(initial=role_permissions.get(extension),
-                                      prefix=extension))
+                perms_forms.append(FormType(
+                    initial=role_permissions.get(extension),
+                    prefix=extension
+                ))
 
-    return forms
+    return perms_forms

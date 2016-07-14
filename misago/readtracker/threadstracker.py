@@ -1,9 +1,9 @@
 from django.db.transaction import atomic
 from django.utils import timezone
 
-from misago.readtracker import categoriestracker, signals
-from misago.readtracker.dates import is_date_tracked
-from misago.readtracker.models import CategoryRead, ThreadRead
+from . import categoriestracker, signals
+from .dates import is_date_tracked
+from .models import CategoryRead, ThreadRead
 
 
 __all__ = ['make_read_aware', 'read_thread']
@@ -44,8 +44,7 @@ def make_categories_threads_read_aware(user, threads):
     threads_dict = {}
     for thread in threads:
         category_cutoff = categories_cutoffs.get(thread.category_id)
-        thread.is_read = not is_date_tracked(
-            thread.last_post_on, user, category_cutoff)
+        thread.is_read = not is_date_tracked(thread.last_post_on, user, category_cutoff)
         thread.is_new = True
 
         if not thread.is_read:

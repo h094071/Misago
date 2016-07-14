@@ -13,13 +13,11 @@ from misago.core.mail import mail_users
 from misago.core.pgutils import batch_update
 from misago.threads.models import Thread
 
-from misago.users.avatars.dynamic import set_avatar as set_dynamic_avatar
-from misago.users.forms.admin import (StaffFlagUserFormFactory, NewUserForm,
-                                      EditUserForm, SearchUsersForm,
-                                      BanUsersForm)
-from misago.users.models import ACTIVATION_REQUIRED_NONE, User, Ban
-from misago.users.models.ban import BAN_USERNAME, BAN_EMAIL, BAN_IP
-from misago.users.signatures import set_user_signature
+from ...avatars.dynamic import set_avatar as set_dynamic_avatar
+from ...forms.admin import BanUsersForm, EditUserForm, NewUserForm, SearchUsersForm, StaffFlagUserFormFactory
+from ...models import ACTIVATION_REQUIRED_NONE, Ban, User
+from ...models.ban import BAN_EMAIL, BAN_IP, BAN_USERNAME
+from ...signatures import set_user_signature
 
 
 class UserAdmin(generic.AdminBaseMixin):

@@ -4,8 +4,8 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from misago.categories.serializers import CategorySerializer
-from misago.categories.utils import get_categories_tree
+from ..serializers import CategorySerializer
+from ..utils import get_categories_tree
 
 
 def categories(request):
@@ -18,7 +18,6 @@ def categories(request):
 
     return render(request, 'misago/categories/list.html', {
         'categories': categories_tree,
-        'is_index': settings.MISAGO_CATEGORIES_ON_INDEX,
     })
 
 

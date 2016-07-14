@@ -1,16 +1,17 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.shortcuts import redirect, render as django_render
+from django.shortcuts import render as django_render
+from django.shortcuts import redirect
 
 from misago.core.shortcuts import get_object_or_404, paginate, pagination_dict
 from misago.core.utils import format_plaintext_for_html
 
-from misago.users.activepostersranking import get_active_posters_ranking
-from misago.users.models import Rank
-from misago.users.pages import users_list
-from misago.users.permissions.profiles import allow_browse_users_list
-from misago.users.serializers import UserSerializer, ScoredUserSerializer
+from ..activepostersranking import get_active_posters_ranking
+from ..models import Rank
+from ..pages import users_list
+from ..permissions.profiles import allow_browse_users_list
+from ..serializers import ScoredUserSerializer, UserSerializer
 
 
 def render(request, template, context):
@@ -68,7 +69,7 @@ def allow_see_list(f):
 
 
 @allow_see_list
-def lander(request):
+def landing(request):
     default = users_list.get_default_link()
     return redirect(default)
 

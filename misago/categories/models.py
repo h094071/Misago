@@ -1,21 +1,22 @@
 from urlparse import urlparse
 
+from mptt.managers import TreeManager
+from mptt.models import MPTTModel, TreeForeignKey
+
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from mptt.managers import TreeManager
-from mptt.models import MPTTModel, TreeForeignKey
 
 from misago.acl import version as acl_version
 from misago.acl.models import BaseRole
 from misago.conf import settings
 from misago.core.cache import cache
 from misago.core.utils import slugify
-from misago.threads import threadtypes
+from misago.threads.threadtypes import trees_map
 
 
 CACHE_NAME = 'misago_categories_tree'
-CATEGORIES_TREE_ID = 1
+THREADS_ROOT_NAME = 'root_category'
 
 
 class CategoryManager(TreeManager):
@@ -35,10 +36,11 @@ class CategoryManager(TreeManager):
         return special_category
 
     def all_categories(self, include_root=False):
-        qs = self.filter(tree_id=CATEGORIES_TREE_ID)
+        tree_id = trees_map.get_tree_id_for_root(THREADS_ROOT_NAME)
+        queryset = self.filter(tree_id=tree_id)
         if not include_root:
-            qs = qs.filter(level__gt=0)
-        return qs.order_by('lft')
+            queryset = queryset.filter(level__gt=0)
+        return queryset.order_by('lft')
 
     def get_cached_categories_dict(self):
         categories_dict = cache.get(CACHE_NAME, 'nada')
@@ -105,7 +107,7 @@ class Category(MPTTModel):
 
     @property
     def thread_type(self):
-        return threadtypes.get(self.special_role or 'category')
+        return trees_map.get_type_for_tree_id(self.tree_id)
 
     def __unicode__(self):
         return unicode(self.thread_type.get_category_name(self))
@@ -135,11 +137,11 @@ class Category(MPTTModel):
             self.empty_last_thread()
 
     def delete_content(self):
-        from misago.categories.signals import delete_category_content
+        from .signals import delete_category_content
         delete_category_content.send(sender=self)
 
     def move_content(self, new_category):
-        from misago.categories.signals import move_category_content
+        from .signals import move_category_content
         move_category_content.send(sender=self, new_category=new_category)
 
     def get_absolute_url(self):

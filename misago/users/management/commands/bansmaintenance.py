@@ -3,7 +3,7 @@ from django.utils import timezone
 
 from misago.core import cachebuster
 
-from misago.users.models import Ban, BanCache
+from ...models import Ban, BanCache
 
 
 class Command(BaseCommand):

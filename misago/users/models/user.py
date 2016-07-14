@@ -1,8 +1,8 @@
 from hashlib import md5
 
-from django.contrib.auth.models import (
-    AbstractBaseUser, PermissionsMixin, UserManager as BaseUserManager,
-    AnonymousUser as DjangoAnonymousUser)
+from django.contrib.auth.models import AnonymousUser as DjangoAnonymousUser
+from django.contrib.auth.models import UserManager as BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError, models, transaction
@@ -15,11 +15,10 @@ from misago.acl.models import Role
 from misago.conf import settings
 from misago.core.utils import slugify
 
-from misago.users.models.rank import Rank
-from misago.users import avatars
-from misago.users.signatures import (is_user_signature_valid,
-                                     make_signature_checksum)
-from misago.users.utils import hash_email
+from .. import avatars
+from ..signatures import is_user_signature_valid, make_signature_checksum
+from ..utils import hash_email
+from .rank import Rank
 
 
 __all__ = [
@@ -73,10 +72,8 @@ PRIVATE_THREAD_INVITES_LIMITS_CHOICES = (
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, password=None,
-                    set_default_avatar=False, **extra_fields):
-        from misago.users.validators import (validate_email, validate_password,
-                                             validate_username)
+    def create_user(self, username, email, password=None, set_default_avatar=False, **extra_fields):
+        from ..validators import validate_email, validate_password, validate_username
 
         with transaction.atomic():
             if not email:
@@ -281,7 +278,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return super(User, self).delete(*args, **kwargs)
 
     def delete_content(self):
-        from misago.users.signals import delete_user_content
+        from ..signals import delete_user_content
         delete_user_content.send(sender=self)
 
     @property
@@ -381,7 +378,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                 self.record_name_change(
                     changed_by, new_username, old_username)
 
-                from misago.users.signals import username_changed
+                from ..signals import username_changed
                 username_changed.send(sender=self)
 
     def record_name_change(self, changed_by, new_username, old_username):
@@ -446,7 +443,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Online(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL,
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
         primary_key=True,
         related_name='online_tracker',
     )

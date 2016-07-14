@@ -9,7 +9,7 @@ from misago.categories.models import Category
 from misago.threads import testutils
 from misago.users.models import AnonymousUser
 
-from misago.readtracker import categoriestracker, threadstracker
+from .. import categoriestracker, threadstracker
 
 
 class ReadTrackerTests(TestCase):

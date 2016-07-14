@@ -1,6 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+
+from ..views import api
 
 
-urlpatterns = patterns('misago.categories.views',
-    url(r'^categories/$', 'api', name='categories'),
-)
+urlpatterns = [
+    url(r'^categories/$', api, name='categories'),
+]

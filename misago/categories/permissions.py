@@ -3,13 +3,12 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
-
 from misago.acl import algebra
 from misago.acl.decorators import return_boolean
 from misago.core import forms
 from misago.users.models import AnonymousUser
 
-from misago.categories.models import Category, RoleCategoryACL, CategoryRole
+from .models import Category, CategoryRole, RoleCategoryACL
 
 
 """
@@ -35,6 +34,7 @@ ACL Builder
 def build_acl(acl, roles, key_name):
     new_acl = {
         'visible_categories': [],
+        'browseable_categories': [],
         'categories': {},
     }
     new_acl.update(acl)
@@ -82,6 +82,9 @@ def build_category_acl(acl, category, categories_roles, key_name):
     if final_acl['can_see']:
         acl['visible_categories'].append(category.pk)
         acl['categories'][category.pk] = final_acl
+
+        if final_acl['can_browse']:
+            acl['browseable_categories'].append(category.pk)
 
 
 """

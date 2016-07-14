@@ -5,8 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from misago.admin.views import generic
 
-from misago.users.models import Rank
-from misago.users.forms.admin import RankForm
+from ...forms.admin import RankForm
+from ...models import Rank
 
 
 class RankAdmin(generic.AdminBaseMixin):

@@ -3,8 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from misago.admin.views import generic
 
-from misago.users.models import Ban
-from misago.users.forms.admin import SearchBansForm, BanForm
+from ...forms.admin import BanForm, SearchBansForm
+from ...models import Ban
 
 
 class BanAdmin(generic.AdminBaseMixin):

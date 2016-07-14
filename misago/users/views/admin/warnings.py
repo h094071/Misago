@@ -3,8 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from misago.admin.views import generic
 
-from misago.users.models import WarningLevel
-from misago.users.forms.admin import WarningLevelForm
+from ...forms.admin import WarningLevelForm
+from ...models import WarningLevel
 
 
 class WarningsAdmin(generic.AdminBaseMixin):

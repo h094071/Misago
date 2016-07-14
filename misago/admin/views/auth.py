@@ -1,13 +1,13 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
-from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.debug import sensitive_post_parameters
 
 from misago.users.forms.auth import AdminAuthenticationForm
 
-from misago.admin import auth
+from .. import auth
 
 
 @sensitive_post_parameters()

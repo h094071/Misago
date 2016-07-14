@@ -3,28 +3,36 @@
 
 
 {% block title %}
-{% if list_name %}
-  {% if paginator.page > 1 %}
-    {{ list_name }} ({% blocktrans with page=paginator.page %}page: {{ page }}{% endblocktrans %}) | {% trans "Threads" %} | {{ block.super }}
+{% if THREADS_ON_INDEX %}
+  {% if list_name %}
+    {{ list_name }} | {{ block.super }}
+  {% elif paginator.page > 1 %}
+    {% if misago_settings.forum_index_title %}
+      {{ misago_settings.forum_index_title }} ({% blocktrans with page=paginator.page %}page: {{ page }}{% endblocktrans %})
+    {% else %}
+      {{ misago_settings.forum_name }} ({% blocktrans with page=paginator.page %}page: {{ page }}{% endblocktrans %})
+    {% endif %}
   {% else %}
-    {{ list_name }} | {% trans "Threads" %} | {{ block.super }}
+    {% if misago_settings.forum_index_title %}
+      {{ misago_settings.forum_index_title }}
+    {% else %}
+      {{ misago_settings.forum_name }}
+    {% endif %}
   {% endif %}
-{% elif is_index and paginator.page == 1 %}
-  {% if misago_settings.forum_index_title %}
-  {{ misago_settings.forum_index_title }}
-  {% else %}
-  {{ misago_settings.forum_name }}
-  {% endif %}
-{% elif paginator.page > 1 %}
-  {% trans "Threads" %} ({% blocktrans with page=paginator.page %}page: {{ page }}{% endblocktrans %}) | {{ block.super }}
 {% else %}
-  {% trans "Threads" %} | {{ block.super }}
+  {% if list_name %}
+    {{ list_name }} | {% trans "Threads" %} | {{ block.super }}
+  {% elif paginator.page > 1 %}
+    {% trans "Threads" %} ({% blocktrans with page=paginator.page %}page: {{ page }}{% endblocktrans %}) | {{ block.super }}
+  {% else %}
+    {% trans "Threads" %} | {{ block.super }}
+  {% endif %}
 {% endif %}
 {% endblock title %}
 
 
 {% block meta-description %}
-{% if is_index and misago_settings.forum_index_meta_description %}
+{% if THREADS_ON_INDEX and misago_settings.forum_index_meta_description %}
   {{ misago_settings.forum_index_meta_description }}
 {% endif %}
 {% endblock meta-description %}
@@ -33,7 +41,7 @@
 {% block page-header %}
 <div class="page-header {{ user.is_authenticated|iftrue:"tabbed" }}">
   <div class="container">
-    {% if is_index %}
+    {% if THREADS_ON_INDEX %}
       {% if misago_settings.forum_index_title %}
         <h1>{{ misago_settings.forum_index_title }}</h1>
       {% else %}

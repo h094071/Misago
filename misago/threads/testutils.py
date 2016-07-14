@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from misago.core.utils import slugify
 
-from misago.threads.models import Thread, Post
+from .models import Post, Thread
 
 
 def post_thread(category, title='Test thread', poster='Tester',
@@ -46,7 +46,8 @@ def post_thread(category, title='Test thread', poster='Tester',
         })
 
     thread = Thread.objects.create(**kwargs)
-    reply_thread(thread,
+    reply_thread(
+        thread,
         poster=poster,
         posted_on=thread.last_post_on,
         is_hidden=is_hidden,

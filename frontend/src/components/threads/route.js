@@ -134,7 +134,7 @@ export default class extends WithDropdown {
   }
 
   componentDidMount() {
-    title.set(getPageTitle(this.props.route));
+    this.setPageTitle();
 
     if (misago.has('THREADS')) {
       // unlike in other components, routes are root components for threads
@@ -156,6 +156,18 @@ export default class extends WithDropdown {
 
   getTitle() {
     return getTitle(this.props.route);
+  }
+
+  setPageTitle() {
+    if (this.props.route.category.level || !misago.get('THREADS_ON_INDEX')) {
+      title.set(getPageTitle(this.props.route));
+    } else {
+      if (misago.get('SETTINGS').forum_index_title) {
+        document.title = misago.get('SETTINGS').forum_index_title;
+      } else {
+        document.title = misago.get('SETTINGS').forum_name;
+      }
+    }
   }
 
   getSorting() {
@@ -264,7 +276,8 @@ export default class extends WithDropdown {
     /* jshint ignore:start */
     return <div className={this.getClassName()}>
 
-      <Header disabled={!this.state.isLoaded}
+      <Header categories={this.props.route.categoriesMap}
+              disabled={!this.state.isLoaded}
               threads={this.props.threads}
               title={this.getTitle()}
               toggleNav={this.toggleNav}

@@ -1,6 +1,7 @@
 from importlib import import_module
 
 from bs4 import BeautifulSoup
+
 from django.conf import settings
 
 
@@ -17,7 +18,7 @@ class MarkupPipeline(object):
         return md
 
     def process_result(self, result):
-        soup = BeautifulSoup(result['parsed_text'])
+        soup = BeautifulSoup(result['parsed_text'], 'html5lib')
         for extension in settings.MISAGO_MARKUP_EXTENSIONS:
             module = import_module(extension)
             if hasattr(module, 'clean_parsed'):

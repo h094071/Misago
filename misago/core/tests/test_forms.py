@@ -1,5 +1,6 @@
 from django.test import TestCase
-from misago.core import forms
+
+from .. import forms
 
 
 class YesNoForm(forms.Form):

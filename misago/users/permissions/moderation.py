@@ -11,7 +11,7 @@ from misago.acl.decorators import return_boolean
 from misago.acl.models import Role
 from misago.core import forms
 
-from misago.users.bans import get_user_ban
+from ..bans import get_user_ban
 
 
 """

@@ -4,8 +4,7 @@ from django.test.client import RequestFactory
 
 from misago.users.models import AnonymousUser
 
-from misago.core.testproject.views import (mock_custom_403_error_page,
-                                           mock_custom_404_error_page)
+from ..testproject.views import mock_custom_403_error_page, mock_custom_404_error_page
 
 
 class CSRFErrorViewTests(TestCase):

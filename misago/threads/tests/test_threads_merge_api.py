@@ -6,11 +6,11 @@ from misago.acl import add_acl
 from misago.acl.testutils import override_acl
 from misago.categories.models import Category
 
-from misago.threads import testutils
-from misago.threads.api.threadendpoints.merge import MERGE_LIMIT
-from misago.threads.models import Thread, Post
-from misago.threads.serializers import ThreadListSerializer
-from misago.threads.tests.test_threads_api import ThreadsApiTestCase
+from .. import testutils
+from ..api.threadendpoints.merge import MERGE_LIMIT
+from ..models import Post, Thread
+from ..serializers import ThreadListSerializer
+from .test_threads_api import ThreadsApiTestCase
 
 
 class ThreadsMergeApiTests(ThreadsApiTestCase):
@@ -26,8 +26,7 @@ class ThreadsMergeApiTests(ThreadsApiTestCase):
 
     def test_merge_no_threads(self):
         """api validates if we are trying to merge no threads"""
-        response = self.client.post(
-            self.api_link, content_type="application/json")
+        response = self.client.post(self.api_link, content_type="application/json")
         self.assertEqual(response.status_code, 403)
 
         response_json = json.loads(response.content)

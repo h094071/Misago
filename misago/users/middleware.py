@@ -6,9 +6,9 @@ from django.core.urlresolvers import resolve
 
 from misago.conf import settings
 
-from misago.users.bans import get_request_ip_ban, get_user_ban
-from misago.users.models import AnonymousUser, Online
-from misago.users.online import tracker
+from .bans import get_request_ip_ban, get_user_ban
+from .models import AnonymousUser, Online
+from .online import tracker
 
 
 class RealIPMiddleware(object):

@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from misago.categories.models import Category
 
-from misago.users.models import ActivityRanking
+from .models import ActivityRanking
 
 
 def get_active_posters_ranking():

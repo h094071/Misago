@@ -5,17 +5,19 @@ from django.test import TestCase
 
 from misago.conf import settings
 
-from misago.users.models import Ban, BAN_USERNAME, BAN_EMAIL
-from misago.users.validators import (validate_email,
-                                     validate_email_available,
-                                     validate_email_banned,
-                                     validate_password,
-                                     validate_username,
-                                     validate_username_available,
-                                     validate_username_banned,
-                                     validate_username_content,
-                                     validate_username_length,
-                                     validate_gmail_email)
+from ..models import BAN_EMAIL, BAN_USERNAME, Ban
+from ..validators import (
+    validate_email,
+    validate_email_available,
+    validate_email_banned,
+    validate_gmail_email,
+    validate_password,
+    validate_username,
+    validate_username_available,
+    validate_username_banned,
+    validate_username_content,
+    validate_username_length
+)
 
 
 class ValidateEmailAvailableTests(TestCase):

@@ -5,9 +5,9 @@ from django.test import TestCase
 from misago.core import threadstore
 from misago.core.cache import cache
 
-from misago.conf.gateway import settings as gateway
-from misago.conf.dbsettings import db_settings
-from misago.conf.migrationutils import migrate_settings_group
+from ..dbsettings import db_settings
+from ..gateway import settings as gateway
+from ..migrationutils import migrate_settings_group
 
 
 class DBSettingsTests(TestCase):

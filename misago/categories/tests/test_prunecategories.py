@@ -6,8 +6,8 @@ from django.utils.six import StringIO
 
 from misago.threads import testutils
 
-from misago.categories.management.commands import prunecategories
-from misago.categories.models import Category
+from ..management.commands import prunecategories
+from ..models import Category
 
 
 class PruneCategoriesTests(TestCase):

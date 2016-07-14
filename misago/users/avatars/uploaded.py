@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 
 from misago.conf import settings
 
-from misago.users.avatars import store
+from . import store
 
 
 ALLOWED_EXTENSIONS = ('.gif', '.png', '.jpg', '.jpeg')

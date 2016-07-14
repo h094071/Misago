@@ -5,7 +5,7 @@ from django.test.client import RequestFactory
 
 from misago.users.models import AnonymousUser
 
-from misago.core.middleware.exceptionhandler import ExceptionHandlerMiddleware
+from ..middleware.exceptionhandler import ExceptionHandlerMiddleware
 
 
 class ExceptionHandlerMiddlewareTests(TestCase):

@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 
 from misago.admin.testutils import AdminTestCase
 
-from misago.conf.models import SettingsGroup
+from ..models import SettingsGroup
 
 
 class AdminSettingsViewsTests(AdminTestCase):

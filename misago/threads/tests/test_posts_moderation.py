@@ -1,8 +1,8 @@
 from misago.categories.models import Category
 from misago.users.testutils import AuthenticatedUserTestCase
 
-from misago.threads import moderation, testutils
-from misago.threads.models import Thread, Post
+from .. import moderation, testutils
+from ..models import Post, Thread
 
 
 class PostsModerationTests(AuthenticatedUserTestCase):

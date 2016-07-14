@@ -2,16 +2,17 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import Http404
 from django.utils import timezone
-from django.utils.translation import ungettext, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ungettext
 
 from misago.acl import add_acl, algebra
 from misago.acl.decorators import return_boolean
 from misago.acl.models import Role
-from misago.categories.models import Category, RoleCategoryACL, CategoryRole
+from misago.categories.models import Category, CategoryRole, RoleCategoryACL
 from misago.categories.permissions import get_categories_roles
 from misago.core import forms
 
-from misago.threads.models import Thread, Post, Event
+from ..models import Post, Thread
 
 
 __all__ = [
@@ -383,7 +384,18 @@ def add_acl_to_thread(user, thread):
         thread.acl['can_merge'] = category_acl.get('can_merge_threads', False)
 
 
-def add_acl_to_post(user, post):
+def add_acl_to_event(user, event):
+    category_acl = user.acl['categories'].get(event.category_id, {})
+    can_hide_events = category_acl.get('can_hide_events', 0)
+
+    event.acl.update({
+        'can_see_hidden': can_hide_events,
+        'can_hide': can_hide_events > 0,
+        'can_delete': can_hide_events == 2,
+    })
+
+
+def add_acl_to_reply(user, post):
     category_acl = user.acl['categories'].get(post.category_id, {})
 
     post.acl.update({
@@ -400,25 +412,20 @@ def add_acl_to_post(user, post):
     })
 
     if not post.acl['can_see_hidden']:
-        if user.is_authenticated() and user.id == post.poster_id:
-            post.acl['can_see_hidden'] = True
-        else:
-            post.acl['can_see_hidden'] = post.id == post.thread.first_post_id
+        post.acl['can_see_hidden'] = post.id == post.thread.first_post_id
 
 
-def add_acl_to_event(user, event):
-    category_acl = user.acl['categories'].get(event.category_id, {})
-    can_hide_events = category_acl.get('can_hide_events', 0)
-
-    event.acl['can_hide'] = can_hide_events > 0
-    event.acl['can_delete'] = can_hide_events == 2
+def add_acl_to_post(user, post):
+    if post.is_event:
+        add_acl_to_event(user, post)
+    else:
+        add_acl_to_reply(user, post)
 
 
 def register_with(registry):
     registry.acl_annotator(Category, add_acl_to_category)
     registry.acl_annotator(Thread, add_acl_to_thread)
     registry.acl_annotator(Post, add_acl_to_post)
-    registry.acl_annotator(Event, add_acl_to_event)
 
 
 """
@@ -429,13 +436,14 @@ def allow_see_thread(user, target):
     if not (category_acl.get('can_see') and category_acl.get('can_browse')):
         raise Http404()
 
+    if target.is_hidden and (user.is_anonymous() or not category_acl.get('can_hide_threads')):
+        raise Http404()
+
     if user.is_anonymous() or user.pk != target.starter_id:
         if not category_acl.get('can_see_all_threads'):
             raise Http404()
-        if target.is_unapproved:
-            if not category_acl.get('can_approve_content'):
-                raise Http404()
-        if target.is_hidden and not category_acl.get('can_hide_threads'):
+
+        if target.is_unapproved and not category_acl.get('can_approve_content'):
             raise Http404()
 can_see_thread = return_boolean(allow_see_thread)
 
@@ -449,8 +457,7 @@ def allow_start_thread(user, target):
             _("This category is closed. You can't start new threads in it."))
 
     if not user.acl['categories'].get(target.id, {'can_start_threads': False}):
-        raise PermissionDenied(_("You don't have permission to start "
-                                 "new threads in this category."))
+        raise PermissionDenied(_("You don't have permission to start new threads in this category."))
 can_start_thread = return_boolean(allow_start_thread)
 
 
@@ -462,11 +469,9 @@ def allow_reply_thread(user, target):
 
     if not category_acl.get('can_close_threads', False):
         if target.category.is_closed:
-            raise PermissionDenied(
-                _("This category is closed. You can't reply to threads in it."))
+            raise PermissionDenied(_("This category is closed. You can't reply to threads in it."))
         if target.is_closed:
-            raise PermissionDenied(
-                _("You can't reply to closed threads in this category."))
+            raise PermissionDenied(_("You can't reply to closed threads in this category."))
 
     if not category_acl.get('can_reply_threads', False):
         raise PermissionDenied(_("You can't reply to threads in this category."))
@@ -489,18 +494,15 @@ def allow_edit_thread(user, target):
 
         if not category_acl['can_close_threads']:
             if target.category.is_closed:
-                raise PermissionDenied(
-                    _("This category is closed. You can't edit threads in it."))
+                raise PermissionDenied(_("This category is closed. You can't edit threads in it."))
             if target.is_closed:
-                raise PermissionDenied(
-                    _("You can't edit closed threads in this category."))
+                raise PermissionDenied(_("You can't edit closed threads in this category."))
 
         if not has_time_to_edit_thread(user, target):
-            message = ungettext("You can't edit threads that are "
-                                "older than %(minutes)s minute.",
-                                "You can't edit threads that are "
-                                "older than %(minutes)s minutes.",
-                                category_acl['thread_edit_time'])
+            message = ungettext(
+                "You can't edit threads that are older than %(minutes)s minute.",
+                "You can't edit threads that are older than %(minutes)s minutes.",
+                category_acl['thread_edit_time'])
             raise PermissionDenied(
                 message % {'minutes': category_acl['thread_edit_time']})
 can_edit_thread = return_boolean(allow_edit_thread)
@@ -519,7 +521,7 @@ def allow_edit_post(user, target):
     if user.is_anonymous():
         raise PermissionDenied(_("You have to sign in to edit posts."))
 
-    category_acl = target.category.acl
+    category_acl = user.acl['categories'].get(target.category_id, {})
 
     if not category_acl['can_edit_posts']:
         raise PermissionDenied(_("You can't edit posts in this category."))
@@ -559,7 +561,7 @@ def allow_unhide_post(user, target):
     if user.is_anonymous():
         raise PermissionDenied(_("You have to sign in to reveal posts."))
 
-    category_acl = target.category.acl
+    category_acl = user.acl['categories'].get(target.category_id, {})
 
     if not category_acl['can_hide_posts']:
         if not category_acl['can_hide_own_posts']:
@@ -601,7 +603,7 @@ def allow_hide_post(user, target):
     if user.is_anonymous():
         raise PermissionDenied(_("You have to sign in to hide posts."))
 
-    category_acl = target.category.acl
+    category_acl = user.acl['categories'].get(target.category_id, {})
 
     if not category_acl['can_hide_posts']:
         if not category_acl['can_hide_own_posts']:
@@ -643,7 +645,7 @@ def allow_delete_post(user, target):
     if user.is_anonymous():
         raise PermissionDenied(_("You have to sign in to delete posts."))
 
-    category_acl = target.category.acl
+    category_acl = user.acl['categories'].get(target.category_id, {})
 
     if category_acl['can_hide_posts'] != 2:
         if not category_acl['can_hide_own_posts'] != 2:

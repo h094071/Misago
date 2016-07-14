@@ -1,8 +1,8 @@
 from django.conf import settings
 from django.conf.urls import url
 
-from misago.threads.views.lists import ThreadsList, CategoryThreadsList, PrivateThreadsList
-from misago.threads.views.thread import Thread, PrivateThread
+from ..views.list import ForumThreads, CategoryThreads, PrivateThreads
+from ..views.thread import Thread, PrivateThread
 
 
 LISTS_TYPES = (
@@ -32,17 +32,8 @@ def threads_list_patterns(prefix, view, patterns):
     return urls
 
 
-if settings.MISAGO_CATEGORIES_ON_INDEX:
-    urlpatterns = threads_list_patterns('threads', ThreadsList, (
-        r'^threads/$',
-        r'^threads/my/$',
-        r'^threads/new/$',
-        r'^threads/unread/$',
-        r'^threads/subscribed/$',
-        r'^threads/unapproved/$',
-    ))
-else:
-    urlpatterns = threads_list_patterns('threads', ThreadsList, (
+if settings.MISAGO_THREADS_ON_INDEX:
+    urlpatterns = threads_list_patterns('threads', ForumThreads, (
         r'^$',
         r'^my/$',
         r'^new/$',
@@ -50,9 +41,18 @@ else:
         r'^subscribed/$',
         r'^unapproved/$',
     ))
+else:
+    urlpatterns = threads_list_patterns('threads', ForumThreads, (
+        r'^threads/$',
+        r'^threads/my/$',
+        r'^threads/new/$',
+        r'^threads/unread/$',
+        r'^threads/subscribed/$',
+        r'^threads/unapproved/$',
+    ))
 
 
-urlpatterns += threads_list_patterns('category', CategoryThreadsList, (
+urlpatterns += threads_list_patterns('category', CategoryThreads, (
     r'^category/(?P<slug>[-a-zA-Z0-9]+)-(?P<pk>\d+)/$',
     r'^category/(?P<slug>[-a-zA-Z0-9]+)-(?P<pk>\d+)/my/$',
     r'^category/(?P<slug>[-a-zA-Z0-9]+)-(?P<pk>\d+)/new/$',
@@ -62,7 +62,7 @@ urlpatterns += threads_list_patterns('category', CategoryThreadsList, (
 ))
 
 
-urlpatterns += threads_list_patterns('private-threads', CategoryThreadsList, (
+urlpatterns += threads_list_patterns('private-threads', CategoryThreads, (
     r'^private-threads/$',
     r'^private-threads/my/$',
     r'^private-threads/new/$',

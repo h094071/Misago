@@ -5,10 +5,10 @@ from django.test import TestCase
 from django.utils import timezone
 
 from misago.categories.models import Category
-from misago.threads import testutils
 from misago.users.models import AnonymousUser
 
-from misago.threads.subscriptions import make_subscription_aware
+from .. import testutils
+from ..subscriptions import make_subscription_aware
 
 
 class SubscriptionsTests(TestCase):

@@ -1,8 +1,9 @@
 from django.core.urlresolvers import reverse
 
-from misago.admin.testutils import AdminTestCase
 from misago.acl.models import Role
-from misago.users.models import Rank
+from misago.admin.testutils import AdminTestCase
+
+from ..models import Rank
 
 
 class RankAdminViewsTests(AdminTestCase):

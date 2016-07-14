@@ -1,12 +1,12 @@
-from rest_framework.permissions import BasePermission, AllowAny, SAFE_METHODS
-
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext as _
 
+from rest_framework.permissions import SAFE_METHODS, AllowAny, BasePermission
+
 from misago.core.exceptions import Banned
 
-from misago.users.bans import get_request_ip_ban
-from misago.users.models import Ban, BAN_IP
+from .bans import get_request_ip_ban
+from .models import BAN_IP, Ban
 
 
 __all__ = [
@@ -20,8 +20,7 @@ __all__ = [
 class IsAuthenticatedOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         if request.user.is_anonymous() and request.method not in SAFE_METHODS:
-            raise PermissionDenied(
-                _("This action is not available to guests."))
+            raise PermissionDenied(_("This action is not available to guests."))
         else:
             return True
 

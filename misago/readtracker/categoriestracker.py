@@ -3,9 +3,9 @@ from django.utils import timezone
 
 from misago.threads.permissions import exclude_invisible_threads
 
-from misago.readtracker import signals
-from misago.readtracker.dates import is_date_tracked
-from misago.readtracker.models import CategoryRead
+from . import signals
+from .dates import is_date_tracked
+from .models import CategoryRead
 
 
 __all__ = ['make_read_aware', 'sync_record']
@@ -114,4 +114,3 @@ def read_category(user, category):
         CategoryRead.objects.bulk_create(new_reads)
 
     signals.category_read.send(sender=user, category=category)
-

@@ -1,5 +1,6 @@
 from django.test import TestCase
-from misago.core import serializer
+
+from .. import serializer
 
 
 class SerializerTests(TestCase):
@@ -21,4 +22,3 @@ class SerializerTests(TestCase):
             dry = serializer.dumps(wet)
             self.assertFalse(dry.endswith('='))
             self.assertEqual(wet, serializer.loads(dry))
-

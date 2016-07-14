@@ -1,11 +1,11 @@
 from StringIO import StringIO
 
-from PIL import Image
 import requests
+from PIL import Image
 
 from misago.conf import settings
 
-from misago.users.avatars import store
+from . import store
 
 
 GRAVATAR_URL = 'http://www.gravatar.com/avatar/%s?s=%s&d=404'

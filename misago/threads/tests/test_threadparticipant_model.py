@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from misago.categories.models import Category
 
-from misago.threads.models import Thread, ThreadParticipant, Post
+from ..models import Post, Thread, ThreadParticipant
 
 
 class ThreadParticipantTests(TestCase):
@@ -98,4 +98,3 @@ class ThreadParticipantTests(TestCase):
         participation = ThreadParticipant.objects.get(
             thread=self.thread, user=user)
         self.assertFalse(participation.is_owner)
-

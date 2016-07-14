@@ -1,9 +1,10 @@
 from django.core.urlresolvers import reverse
+
 from rest_framework import serializers
 
 from misago.categories.serializers import BasicCategorySerializer
 
-from misago.threads.models import Thread
+from ..models import Thread
 
 
 __all__ = [
@@ -13,7 +14,7 @@ __all__ = [
 
 
 class ThreadSerializer(serializers.ModelSerializer):
-    category = BasicCategorySerializer()
+    category = BasicCategorySerializer(many=False, read_only=True)
     is_read = serializers.SerializerMethodField()
     last_poster_url = serializers.SerializerMethodField()
     absolute_url = serializers.SerializerMethodField()

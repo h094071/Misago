@@ -7,8 +7,8 @@ from django.utils import timezone
 from misago.core import threadstore
 from misago.core.cache import cache
 
-from misago.users import warnings
-from misago.users.models import WarningLevel, UserWarning
+from .. import warnings
+from ..models import UserWarning, WarningLevel
 
 
 class WarningsTests(TestCase):

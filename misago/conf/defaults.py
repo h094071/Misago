@@ -28,6 +28,8 @@ INSTALLED_APPS = (
 
 # Build paths inside the project like this: os.path.join(MISAGO_BASE_DIR, ...)
 import os
+
+
 MISAGO_BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -135,11 +137,6 @@ MISAGO_POSTING_MIDDLEWARES = (
 )
 
 MISAGO_THREAD_TYPES = (
-    # category and redirect types
-    'misago.categories.categorytypes.RootCategory',
-    'misago.categories.categorytypes.Category',
-
-    # real thread types
     'misago.threads.threadtypes.thread.Thread',
     'misago.threads.threadtypes.privatethread.PrivateThread',
 )
@@ -225,8 +222,9 @@ MISAGO_ADMIN_NAMESPACES = (
 MISAGO_ADMIN_SESSION_EXPIRATION = 60
 
 
-# Display categories on forum index in place of threads list?
-MISAGO_CATEGORIES_ON_INDEX = False
+# Display threads on forum index
+# Change this to false to display categories list instead
+MISAGO_THREADS_ON_INDEX = True
 
 
 # Max age of notifications in days
@@ -256,9 +254,14 @@ MISAGO_AVATARS_SIZES = (400, 200, 150, 100, 64, 50, 30, 20)
 MISAGO_AVATAR_SERVER_PATH = '/user-avatar'
 
 
+# Number of threads displayed on single page
+MISAGO_THREADS_PER_PAGE = 25
+MISAGO_THREADS_TAIL = 15
+
+
 # Number of posts displayed on single thread page
 MISAGO_POSTS_PER_PAGE = 15
-MISAGO_THREAD_TAIL = 7
+MISAGO_POSTS_TAIL = 7
 
 
 # Controls max age in days of items that Misago has to process to make rankings
@@ -276,12 +279,11 @@ MISAGO_RANKING_SIZE = 50
 MISAGO_USERS_PER_PAGE = 12
 
 
-# Controls amount of data used for new threads/replies lists
-# Only unread threads younger than number of days specified in this setting
-# will be considered fresh for "new threads" list
-# Only unread threads with last reply younger than number of days specified
-# there will be confidered fresh for "Threads with unread replies" list
-MISAGO_FRESH_CONTENT_PERIOD = 40
+# Controls amount of data used by readtracking system
+# Items older than number of days specified below are considered read
+# Depending on amount of new content being posted on your forum you may want
+# To decrease or increase this number to fine-tune readtracker performance
+MISAGO_READTRACKER_CUTOFF = 40
 
 
 # X-Sendfile
@@ -307,13 +309,12 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 # Rest Framework Configuration
 REST_FRAMEWORK = {
-    'UNAUTHENTICATED_USER': 'misago.users.models.AnonymousUser',
-
-    'EXCEPTION_HANDLER': 'misago.core.exceptionhandler.handle_api_exception',
-
     'DEFAULT_PERMISSION_CLASSES': (
         'misago.users.rest_permissions.IsAuthenticatedOrReadOnly',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'misago.core.exceptionhandler.handle_api_exception',
+    'UNAUTHENTICATED_USER': 'misago.users.models.AnonymousUser',
+    'URL_FORMAT_OVERRIDE': None,
 }
 
 

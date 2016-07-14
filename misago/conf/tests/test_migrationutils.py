@@ -3,8 +3,8 @@ from django.test import TestCase
 
 from misago.core import threadstore
 
-from misago.conf import migrationutils
-from misago.conf.models import SettingsGroup
+from .. import migrationutils
+from ..models import SettingsGroup
 
 
 class DBConfMigrationUtilsTests(TestCase):

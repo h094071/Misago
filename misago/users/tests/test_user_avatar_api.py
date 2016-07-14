@@ -1,4 +1,5 @@
 import json
+
 from path import Path
 
 from django.contrib.auth import get_user_model
@@ -7,8 +8,8 @@ from django.core.urlresolvers import reverse
 from misago.acl.testutils import override_acl
 from misago.conf import settings
 
-from misago.users.avatars import store
-from misago.users.testutils import AuthenticatedUserTestCase
+from ..avatars import store
+from ..testutils import AuthenticatedUserTestCase
 
 
 class UserAvatarTests(AuthenticatedUserTestCase):

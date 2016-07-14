@@ -1,31 +1,35 @@
 from django.conf import settings
-from django.conf.urls import patterns, include, url
-
+from django.conf.urls import include, url
+# Serve static and media files in development
+from django.conf.urls.static import static
 # Setup Django admin to work with Misago auth
 from django.contrib import admin
+
+# Register default views
+from misago.core.views import javascript_catalog, momentjs_catalog
 from misago.users.forms.auth import AdminAuthenticationForm
+
 
 admin.autodiscover()
 admin.site.login_form = AdminAuthenticationForm
 
 
-urlpatterns = patterns('',
+
+urlpatterns = [
     url(r'^', include('misago.urls', namespace='misago')),
 
     # Javascript translations
-    url(r'^django-i18n.js$', 'misago.core.views.javascript_catalog'),
-    url(r'^moment-i18n.js$', 'misago.core.views.momentjs_catalog'),
+    url(r'^django-i18n.js$', javascript_catalog),
+    url(r'^moment-i18n.js$', momentjs_catalog),
 
     # Uncomment next line if you plan to use Django admin for 3rd party apps
     #url(r'^django-admin/', include(admin.site.urls)),
 
     # Uncomment next line if you plan to use browseable API
     #url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
-)
+]
 
 
-# Serve static and media files in development
-from django.conf.urls.static import static
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

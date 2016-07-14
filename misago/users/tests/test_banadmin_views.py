@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 
 from misago.admin.testutils import AdminTestCase
 
-from misago.users.models import Ban
+from ..models import Ban
 
 
 class BanAdminViewsTests(AdminTestCase):

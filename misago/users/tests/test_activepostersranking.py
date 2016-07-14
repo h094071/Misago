@@ -5,9 +5,8 @@ from misago.core import threadstore
 from misago.core.cache import cache
 from misago.threads.testutils import post_thread
 
-from misago.users.testutils import AuthenticatedUserTestCase
-from misago.users.activepostersranking import (
-    get_active_posters_ranking, build_active_posters_ranking)
+from ..activepostersranking import build_active_posters_ranking, get_active_posters_ranking
+from ..testutils import AuthenticatedUserTestCase
 
 
 class TestActivePostersRanking(AuthenticatedUserTestCase):

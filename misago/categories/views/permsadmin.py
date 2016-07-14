@@ -2,17 +2,15 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 
-from misago.admin.views import generic
 from misago.acl import version as acl_version
 from misago.acl.forms import get_permissions_forms
 from misago.acl.models import Role
 from misago.acl.views import RoleAdmin, RolesList
+from misago.admin.views import generic
 
-from misago.categories.forms import (CategoryRoleForm, CategoryRolesACLFormFactory,
-                                 RoleCategoryACLFormFactory)
-from misago.categories.views.categoriesadmin import (
-    CategoryAdmin, CategoriesList)
-from misago.categories.models import Category, CategoryRole, RoleCategoryACL
+from ..forms import CategoryRoleForm, CategoryRolesACLFormFactory, RoleCategoryACLFormFactory
+from ..models import Category, CategoryRole, RoleCategoryACL
+from .categoriesadmin import CategoriesList, CategoryAdmin
 
 
 class CategoryRoleAdmin(generic.AdminBaseMixin):

@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
@@ -5,8 +6,8 @@ from django.utils import timezone
 
 from misago.conf import settings
 
-from misago.threads import threadtypes
-from misago.threads.checksums import update_post_checksum, is_post_valid
+from .. import threadtypes
+from ..checksums import is_post_valid, update_post_checksum
 
 
 class Post(models.Model):
@@ -26,10 +27,11 @@ class Post(models.Model):
     mentions = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="mention_set")
 
     has_attachments = models.BooleanField(default=False)
-    pickled_attachments = models.TextField(null=True, blank=True)
+    attachments_cache = JSONField(null=True, blank=True)
 
     posted_on = models.DateTimeField()
     updated_on = models.DateTimeField()
+    hidden_on = models.DateTimeField(default=timezone.now)
 
     edits = models.PositiveIntegerField(default=0)
     last_editor = models.ForeignKey(
@@ -51,7 +53,6 @@ class Post(models.Model):
     )
     hidden_by_name = models.CharField(max_length=255, null=True, blank=True)
     hidden_by_slug = models.SlugField(max_length=255, null=True, blank=True)
-    hidden_on = models.DateTimeField(default=timezone.now)
 
     has_reports = models.BooleanField(default=False)
     has_open_reports = models.BooleanField(default=False)
@@ -59,11 +60,15 @@ class Post(models.Model):
     is_hidden = models.BooleanField(default=False)
     is_protected = models.BooleanField(default=False)
 
+    is_event = models.BooleanField(default=False)
+    event_type = models.CharField(max_length=255, null=True, blank=True)
+    event_context = JSONField(null=True, blank=True)
+
     def __unicode__(self):
         return '%s...' % self.original[10:].strip()
 
     def delete(self, *args, **kwargs):
-        from misago.threads.signals import delete_post
+        from ..signals import delete_post
         delete_post.send(sender=self)
 
         super(Post, self).delete(*args, **kwargs)
@@ -87,11 +92,11 @@ class Post(models.Model):
         other_post.parsed = '%s\n%s' % (other_post.parsed, self.parsed)
         update_post_checksum(other_post)
 
-        from misago.threads.signals import merge_post
+        from ..signals import merge_post
         merge_post.send(sender=self, other_thread=other_post)
 
     def move(self, new_thread):
-        from misago.threads.signals import move_post
+        from ..signals import move_post
 
         self.category = new_thread.category
         self.thread = new_thread
