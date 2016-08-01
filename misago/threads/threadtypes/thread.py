@@ -23,15 +23,15 @@ class Thread(ThreadType):
             return reverse('misago:threads')
 
     def get_category_last_thread_url(self, category):
-        return '/threads/%s-%s/' % (
-            category.last_thread_slug,
-            category.last_thread_id,
-        )
+        return reverse('misago:thread', kwargs={
+            'slug': category.last_thread.slug,
+            'pk': category.last_thread.pk
+        })
 
     def get_category_last_post_url(self, category):
         return '/threads/%s-%s/last/' % (
             category.last_thread_slug,
-            category.last_thread_id,
+            category.last_thread_id
         )
 
     def get_category_api_read_url(self, category):
@@ -54,13 +54,29 @@ class Thread(ThreadType):
             })
 
     def get_thread_last_post_url(self, thread):
-        return '/threads/not-implemented-yet-%s/last/' % thread.pk
+        return reverse('misago:thread-last', kwargs={
+            'slug': thread.slug,
+            'pk': thread.pk
+        })
 
     def get_thread_new_post_url(self, thread):
-        return '/threads/not-implemented-yet-%s/new/' % thread.pk
+        return reverse('misago:thread-new', kwargs={
+            'slug': thread.slug,
+            'pk': thread.pk
+        })
+
+    def get_thread_unapproved_post_url(self, thread):
+        return reverse('misago:thread-unapproved', kwargs={
+            'slug': thread.slug,
+            'pk': thread.pk
+        })
 
     def get_thread_api_url(self, thread):
         return reverse('misago:api:thread-detail', kwargs={'pk': thread.pk})
 
     def get_post_absolute_url(self, post):
-        return '/threads/not-implemented-yet-%s/post/' % post.pk
+            return reverse('misago:thread-post', kwargs={
+                'slug': post.thread.slug,
+                'pk': post.thread.pk,
+                'post': post.pk
+            })
